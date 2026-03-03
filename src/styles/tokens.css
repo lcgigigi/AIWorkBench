@@ -1,0 +1,48 @@
+:root {
+  /* Light Theme Palette */
+  --wb-bg: #f2f4f8;
+  --wb-surface: #ffffff;
+  --wb-surface-2: #f8f9fc;
+  --wb-text: #1f2937;
+  --wb-text-muted: #6b7280;
+  --wb-border: #e5e7eb;
+
+  --wb-primary: #6366f1; /* Soft Indigo */
+  --wb-primary-weak: #e0e7ff;
+  --wb-primary-text: #4338ca;
+
+  --wb-accent-mint: #d1fae5;
+  --wb-accent-mint-text: #059669;
+  --wb-accent-peach: #ffedd5;
+  --wb-accent-peach-text: #ea580c;
+  --wb-accent-pink: #fce7f3;
+  --wb-accent-pink-text: #db2777;
+  --wb-accent-purple: #f3e8ff;
+  --wb-accent-purple-text: #9333ea;
+  --wb-accent-blue: #dbeafe;
+  --wb-accent-blue-text: #2563eb;
+
+  --wb-danger: #ef4444;
+  --wb-danger-weak: #fee2e2;
+  --wb-warn: #f59e0b;
+
+  --wb-radius-sm: 12px;
+  --wb-radius-md: 18px;
+  --wb-radius-lg: 24px;
+  --wb-radius-xl: 32px;
+
+  --wb-space-1: 4px;
+  --wb-space-2: 8px;
+  --wb-space-3: 12px;
+  --wb-space-4: 16px;
+  --wb-space-5: 24px;
+  --wb-space-6: 32px;
+
+  --wb-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --wb-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --wb-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --wb-shadow-panel: -4px 0 20px rgba(0, 0, 0, 0.05);
+
+  --wb-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
