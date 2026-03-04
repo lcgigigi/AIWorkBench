@@ -54,7 +54,7 @@ onMounted(() => {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   min-height: 0;
 }
@@ -71,7 +71,8 @@ onMounted(() => {
   font-size: 13px;
   color: var(--wb-accent-purple-text);
   background: var(--wb-accent-purple);
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -85,7 +86,7 @@ onMounted(() => {
 .list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .card {
@@ -93,7 +94,7 @@ onMounted(() => {
   border: 1px solid transparent;
   background: var(--wb-surface-2);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 10px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -118,4 +119,3 @@ onMounted(() => {
   color: var(--wb-text-muted);
 }
 </style>
-

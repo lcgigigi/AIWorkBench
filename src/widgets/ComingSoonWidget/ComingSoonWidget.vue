@@ -19,7 +19,7 @@ import BaseButton from '../../components/base/BaseButton.vue'
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .badge {
@@ -29,7 +29,10 @@ import BaseButton from '../../components/base/BaseButton.vue'
   color: var(--wb-accent-blue-text);
   background: var(--wb-accent-blue);
   border-radius: 999px;
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .title {
@@ -47,7 +50,6 @@ import BaseButton from '../../components/base/BaseButton.vue'
 .row {
   margin-top: auto;
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 </style>
-

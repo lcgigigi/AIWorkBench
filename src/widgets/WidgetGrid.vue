@@ -17,31 +17,41 @@ const visibleWidgets = computed(() =>
 const hasAnyWidget = computed(() => visibleWidgets.value.length > 0)
 const hiddenCount = computed(() => wb.widgets.filter((w) => w.hidden).length)
 const canRestore = computed(() => hiddenCount.value > 0)
+
+function getGridSpan(spanCols?: 1 | 2 | 3) {
+  return spanCols ?? 2
+}
+
+function onResetLayout() {
+  wb.resetWidgets()
+  wb.setLayoutEditing(false)
+}
 </script>
 
 <template>
   <div class="wrap">
     <div v-if="canRestore" class="toolbar">
       <div class="tip">已关闭 {{ hiddenCount }} 个模块</div>
-      <BaseButton size="sm" variant="primary" @click="wb.resetWidgets()">恢复默认布局</BaseButton>
+      <BaseButton size="sm" variant="primary" @click="onResetLayout()">恢复默认布局</BaseButton>
     </div>
 
     <div v-if="!hasAnyWidget" class="empty">
       <div class="t">暂无小组件</div>
-      <div class="s">你可以点击下方按钮恢复默认布局。</div>
-      <BaseButton variant="primary" @click="wb.resetWidgets()">恢复默认</BaseButton>
+      <div class="s">你可以恢复默认布局重新展示模块。</div>
+      <BaseButton variant="primary" @click="onResetLayout()">恢复默认</BaseButton>
     </div>
 
     <div v-else class="grid">
       <div
-        v-for="({ state, def }, index) in visibleWidgets"
+        v-for="({ state, def }) in visibleWidgets"
         :key="def.id"
         class="item"
-        :style="{ gridColumn: `span ${index < 2 ? 3 : 2}` }"
+        :style="{ gridColumn: `span ${getGridSpan(def.layout?.spanCols)}` }"
       >
         <WidgetFrame
           :def="def"
-          :collapsed="state.collapsed"
+          :collapsed="wb.layoutEditing ? state.collapsed : false"
+          :show-controls="wb.layoutEditing"
           @toggleCollapsed="wb.toggleWidgetCollapsed(def.id)"
           @close="wb.closeWidget(def.id)"
         >
@@ -64,7 +74,7 @@ const canRestore = computed(() => hiddenCount.value > 0)
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -129,4 +139,3 @@ const canRestore = computed(() => hiddenCount.value > 0)
   }
 }
 </style>
-

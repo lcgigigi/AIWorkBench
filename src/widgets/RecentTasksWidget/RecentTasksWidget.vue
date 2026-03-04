@@ -4,32 +4,13 @@ import { useTasksStore } from '../../stores/useTasksStore'
 import { useTaskPanelStore } from '../../panels/TaskPanel/useTaskPanelStore'
 import { useWorkbenchStore } from '../../stores/useWorkbenchStore'
 import BaseButton from '../../components/base/BaseButton.vue'
+import { getTaskStatusText } from '../../utils/taskStatus'
 
 const tasks = useTasksStore()
 const panel = useTaskPanelStore()
 const wb = useWorkbenchStore()
 
 const items = computed(() => tasks.recent.slice(0, 6))
-
-function statusText(status?: string | null) {
-  if (!status) return '—'
-  switch (status) {
-    case 'draft':
-      return '草稿'
-    case 'ready_to_submit':
-      return '待确认'
-    case 'submitted':
-      return '已提交'
-    case 'in_progress':
-      return '处理中'
-    case 'done':
-      return '已完成'
-    case 'failed':
-      return '失败'
-    default:
-      return status
-  }
-}
 
 async function openTask(taskId: string) {
   await panel.openTask(taskId)
@@ -60,7 +41,7 @@ onMounted(() => {
           <div class="title">{{ t.summary?.title ?? '任务' }}</div>
           <div class="sub">{{ new Date(t.updatedAt ?? t.createdAt).toLocaleString() }}</div>
         </div>
-        <div class="status" :class="t.status">{{ statusText(t.status) }}</div>
+        <div class="status" :class="t.status">{{ getTaskStatusText(t.status) }}</div>
       </button>
     </div>
   </div>
@@ -70,7 +51,7 @@ onMounted(() => {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   min-height: 0;
 }
@@ -87,7 +68,8 @@ onMounted(() => {
   font-size: 13px;
   color: var(--wb-accent-mint-text);
   background: var(--wb-accent-mint);
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -107,7 +89,7 @@ onMounted(() => {
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .item {
@@ -115,7 +97,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 10px;
   border-radius: 12px;
   border: 1px solid transparent;
   background: var(--wb-surface-2);
@@ -154,33 +136,45 @@ onMounted(() => {
 .status {
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--wb-border);
   color: var(--wb-text-muted);
   background: var(--wb-surface);
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 .status.done {
-  background: var(--wb-accent-mint);
-  color: var(--wb-accent-mint-text);
+  background: var(--wb-status-done-bg);
+  color: var(--wb-status-done-text);
   border-color: transparent;
 }
 .status.failed {
-  background: var(--wb-danger-weak);
-  color: var(--wb-danger);
+  background: var(--wb-status-failed-bg);
+  color: var(--wb-status-failed-text);
+  border-color: transparent;
+}
+.status.draft {
+  background: var(--wb-status-draft-bg);
+  color: var(--wb-status-draft-text);
+  border-color: transparent;
+}
+.status.ready_to_submit {
+  background: var(--wb-status-ready-bg);
+  color: var(--wb-status-ready-text);
   border-color: transparent;
 }
 .status.in_progress {
-  background: var(--wb-accent-peach);
-  color: var(--wb-accent-peach-text);
+  background: var(--wb-status-progress-bg);
+  color: var(--wb-status-progress-text);
   border-color: transparent;
 }
 .status.submitted {
-  background: var(--wb-accent-blue);
-  color: var(--wb-accent-blue-text);
+  background: var(--wb-status-submitted-bg);
+  color: var(--wb-status-submitted-text);
   border-color: transparent;
 }
 </style>
-

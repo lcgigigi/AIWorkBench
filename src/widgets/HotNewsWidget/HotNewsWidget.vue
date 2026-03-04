@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { api } from '../../api'
 import type { NewsItem } from '../../api/types'
+import BaseButton from '../../components/base/BaseButton.vue'
 
 const loading = ref(false)
 const items = ref<NewsItem[]>([])
@@ -28,7 +29,7 @@ onMounted(() => {
   <div class="wrap">
     <div class="row">
       <div class="meta">{{ loading ? '加载中…' : '🔥 最近热点' }}</div>
-      <button class="btn" type="button" @click="refresh">刷新</button>
+      <BaseButton size="sm" variant="ghost" @click="refresh">刷新</BaseButton>
     </div>
 
     <div v-if="error" class="error">{{ error }}</div>
@@ -48,7 +49,7 @@ onMounted(() => {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
 }
 .row {
@@ -61,24 +62,11 @@ onMounted(() => {
   font-size: 13px;
   color: var(--wb-accent-peach-text);
   background: var(--wb-accent-peach);
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
   border-radius: 99px;
   display: inline-flex;
   align-items: center;
-}
-.btn {
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--wb-border);
-  background: var(--wb-surface);
-  color: var(--wb-text-muted);
-  font-size: 12px;
-  transition: all 0.2s;
-}
-.btn:hover {
-  background: var(--wb-surface-2);
-  color: var(--wb-primary);
-  border-color: var(--wb-primary-weak);
 }
 .error {
   color: var(--wb-danger);
@@ -90,12 +78,12 @@ onMounted(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .item {
   display: flex;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 10px;
   border-radius: 12px;
   border: 1px solid transparent;
   background: var(--wb-surface-2);
@@ -140,4 +128,3 @@ onMounted(() => {
   color: var(--wb-text-muted);
 }
 </style>
-

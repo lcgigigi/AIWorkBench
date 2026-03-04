@@ -8,6 +8,7 @@ export const useWorkbenchStore = defineStore('workbench', () => {
   const taskPanelPinned = useStorage<boolean>('wb.taskPanel.pinned', false)
   const taskPanelOpen = ref(false)
   const taskPanelWidth = useStorage<number>('wb.taskPanel.width', 480)
+  const layoutEditing = ref(false)
 
   const taskPanelMinWidth = 420
   const taskPanelMaxWidth = 560
@@ -31,6 +32,14 @@ export const useWorkbenchStore = defineStore('workbench', () => {
 
   function setTaskPanelWidth(width: number) {
     taskPanelWidth.value = width
+  }
+
+  function toggleLayoutEditing() {
+    layoutEditing.value = !layoutEditing.value
+  }
+
+  function setLayoutEditing(editing: boolean) {
+    layoutEditing.value = editing
   }
 
   const widgetsRaw = useStorage<WidgetState[]>('wb.widgets.v1', defaultWidgetStates)
@@ -73,10 +82,12 @@ export const useWorkbenchStore = defineStore('workbench', () => {
     closeTaskPanel,
     togglePinned,
     setTaskPanelWidth,
+    layoutEditing,
+    toggleLayoutEditing,
+    setLayoutEditing,
     widgets,
     toggleWidgetCollapsed,
     closeWidget,
     resetWidgets,
   }
 })
-

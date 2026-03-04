@@ -1,11 +1,23 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useWorkbenchStore } from '../stores/useWorkbenchStore'
-import WidgetGrid from '../widgets/WidgetGrid.vue'
 import TaskPanel from '../panels/TaskPanel/TaskPanel.vue'
 import BaseButton from '../components/base/BaseButton.vue'
 import LeftSidebar from './LeftSidebar.vue'
 
 const wb = useWorkbenchStore()
+const route = useRoute()
+
+const titleText = computed(() =>
+  typeof route.meta.title === 'string' ? route.meta.title : '工作台',
+)
+
+const subtitleText = computed(() =>
+  typeof route.meta.subtitle === 'string' ? route.meta.subtitle : '',
+)
+
+const showSearch = computed(() => route.meta.showSearch !== false)
 </script>
 
 <template>
@@ -32,12 +44,12 @@ const wb = useWorkbenchStore()
             </svg>
           </div>
           <div class="wb-greeting">
-            <h1>晚上好，同学 👋</h1>
-            <p>欢迎回到你的工作台。</p>
+            <h1>{{ titleText }}</h1>
+            <p>{{ subtitleText }}</p>
           </div>
         </div>
         <div class="wb-top-actions">
-          <div class="search-bar">
+          <div v-if="showSearch" class="search-bar">
             <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -62,7 +74,7 @@ const wb = useWorkbenchStore()
       </header>
 
       <main class="wb-main">
-        <WidgetGrid />
+        <router-view />
       </main>
     </div>
 
@@ -121,7 +133,7 @@ const wb = useWorkbenchStore()
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px;
+  padding: 18px 30px;
 }
 
 .wb-greeting-wrap {
@@ -155,19 +167,20 @@ const wb = useWorkbenchStore()
 .wb-top-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .search-bar {
   position: relative;
-  width: 240px;
+  width: 260px;
 }
 
 .search-bar input {
   width: 100%;
-  padding: 10px 16px 10px 42px;
+  min-height: var(--wb-control-height-md);
+  padding: 0 14px 0 40px;
   border-radius: 99px;
-  border: 1px solid transparent;
+  border: 1px solid var(--wb-border);
   background: var(--wb-surface);
   color: var(--wb-text);
   font-size: 13px;
@@ -201,18 +214,19 @@ const wb = useWorkbenchStore()
 }
 
 .task-btn {
-  background: var(--wb-surface);
+  background: var(--wb-surface-2);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--wb-shadow-sm);
-  color: var(--wb-primary);
+  color: var(--wb-text-muted);
 }
 .task-btn:hover {
+  color: var(--wb-primary);
   background: var(--wb-primary-weak);
 }
 

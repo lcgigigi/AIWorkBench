@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useWorkbenchStore } from '../../stores/useWorkbenchStore'
 import { useTaskPanelStore } from './useTaskPanelStore'
+import { getTaskStatusText } from '../../utils/taskStatus'
 
 const wb = useWorkbenchStore()
 const panel = useTaskPanelStore()
@@ -30,26 +31,6 @@ const stateText = computed(() => {
       return panel.state
   }
 })
-
-function statusText(status?: string | null) {
-  if (!status) return '—'
-  switch (status) {
-    case 'draft':
-      return '草稿'
-    case 'ready_to_submit':
-      return '待确认'
-    case 'submitted':
-      return '已提交'
-    case 'in_progress':
-      return '处理中'
-    case 'done':
-      return '已完成'
-    case 'failed':
-      return '失败'
-    default:
-      return status
-  }
-}
 
 function onBackdrop(e: Event) {
   if (e.target === e.currentTarget) {
@@ -211,7 +192,7 @@ function onBackdrop(e: Event) {
                 <div class="sum-line">
                   <div class="k">状态</div>
                   <div class="v status-val" :class="panel.task?.status?.toLowerCase()">
-                    {{ statusText(panel.task?.status) }}
+                    {{ getTaskStatusText(panel.task?.status) }}
                   </div>
                 </div>
               </div>
@@ -323,15 +304,16 @@ function onBackdrop(e: Event) {
 
 .state {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 4px 10px;
+  min-height: var(--wb-chip-height);
+  padding: 0 10px;
   font-size: 12px;
   font-weight: 600;
   background: var(--wb-surface-2);
@@ -339,15 +321,33 @@ function onBackdrop(e: Event) {
   border: 1px solid var(--wb-border);
 }
 
+.pill-draft {
+  background: var(--wb-status-draft-bg);
+  color: var(--wb-status-draft-text);
+  border-color: transparent;
+}
+
 .pill-editing {
-  background: var(--wb-accent-blue);
-  color: var(--wb-accent-blue-text);
+  background: var(--wb-status-submitted-bg);
+  color: var(--wb-status-submitted-text);
   border-color: transparent;
 }
 
 .pill-readytosubmit {
-  background: var(--wb-accent-purple);
-  color: var(--wb-accent-purple-text);
+  background: var(--wb-status-ready-bg);
+  color: var(--wb-status-ready-text);
+  border-color: transparent;
+}
+
+.pill-submitted {
+  background: var(--wb-status-done-bg);
+  color: var(--wb-status-done-text);
+  border-color: transparent;
+}
+
+.pill-failed {
+  background: var(--wb-status-failed-bg);
+  color: var(--wb-status-failed-text);
   border-color: transparent;
 }
 
@@ -552,13 +552,18 @@ select.control {
   border: 1px solid var(--wb-border);
   background: var(--wb-surface);
   color: var(--wb-text);
-  font-weight: 500;
-  border-radius: 999px;
-  padding: 8px 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  min-height: var(--wb-control-height-sm);
+  padding: 0 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1;
   transition: all 0.2s;
   box-shadow: var(--wb-shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn:hover {
@@ -567,14 +572,12 @@ select.control {
 
 .btn.primary {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--wb-primary), #a855f7);
+  background: var(--wb-primary);
   color: white;
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
 }
 
 .btn.primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4);
+  background: #5658dc;
 }
 
 .btn:disabled {
@@ -627,9 +630,12 @@ select.control {
   font-size: 13px;
 }
 
-.status-val.completed { color: var(--wb-accent-mint-text); }
-.status-val.failed { color: var(--wb-danger); }
-.status-val.processing { color: var(--wb-warn); }
+.status-val.draft { color: var(--wb-status-draft-text); }
+.status-val.ready_to_submit { color: var(--wb-status-ready-text); }
+.status-val.submitted { color: var(--wb-status-submitted-text); }
+.status-val.in_progress { color: var(--wb-status-progress-text); }
+.status-val.done { color: var(--wb-status-done-text); }
+.status-val.failed { color: var(--wb-status-failed-text); }
 
 .error-box {
   border: 1px solid var(--wb-danger);
@@ -650,4 +656,3 @@ select.control {
   line-height: 1.5;
 }
 </style>
-

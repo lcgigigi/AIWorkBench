@@ -3,25 +3,32 @@ import { computed } from 'vue'
 import type { WidgetDefinition } from './types'
 import BaseButton from '../components/base/BaseButton.vue'
 
-const props = defineProps<{
-  def: WidgetDefinition
-  collapsed: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    def: WidgetDefinition
+    collapsed: boolean
+    showControls?: boolean
+  }>(),
+  {
+    showControls: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'toggleCollapsed'): void
   (e: 'close'): void
 }>()
 
-const canCollapse = computed(() => props.def.collapsible !== false)
-const canClose = computed(() => props.def.closable !== false)
+const canCollapse = computed(() => props.showControls && props.def.collapsible !== false)
+const canClose = computed(() => props.showControls && props.def.closable !== false)
+const showActions = computed(() => canCollapse.value || canClose.value)
 </script>
 
 <template>
   <section class="card">
     <header class="head">
       <div class="title">{{ def.title }}</div>
-      <div class="actions">
+      <div v-if="showActions" class="actions">
         <BaseButton v-if="canCollapse" size="sm" variant="ghost" @click="emit('toggleCollapsed')">
           {{ collapsed ? '展开' : '折叠' }}
         </BaseButton>
@@ -51,8 +58,9 @@ const canClose = computed(() => props.def.closable !== false)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 12px;
+  min-height: 54px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--wb-border);
 }
 
@@ -63,15 +71,14 @@ const canClose = computed(() => props.def.closable !== false)
 
 .actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .body {
-  padding: 16px;
+  padding: 14px;
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 </style>
-

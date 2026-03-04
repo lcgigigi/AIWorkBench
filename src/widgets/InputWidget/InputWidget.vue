@@ -60,7 +60,7 @@ function onKeydown(e: KeyboardEvent) {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   min-height: 0;
 }
@@ -68,7 +68,7 @@ function onKeydown(e: KeyboardEvent) {
 .top {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .hint {
@@ -89,13 +89,13 @@ function onKeydown(e: KeyboardEvent) {
   background: var(--wb-surface-2);
   border: 1px solid var(--wb-border);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 10px;
 }
 
 .composer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
 }
 
@@ -103,7 +103,7 @@ function onKeydown(e: KeyboardEvent) {
   width: 100%;
   box-sizing: border-box;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 10px;
   border: 1px solid var(--wb-border);
   background: var(--wb-surface);
   color: var(--wb-text);
@@ -124,7 +124,7 @@ function onKeydown(e: KeyboardEvent) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .kbd {
@@ -132,4 +132,3 @@ function onKeydown(e: KeyboardEvent) {
   color: var(--wb-text-muted);
 }
 </style>
-

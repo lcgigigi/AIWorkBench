@@ -15,15 +15,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  /* Stylish diagonal stripes on a deeper background */
-  background-color: #a1aebf;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.15) 2px,
-    transparent 2px,
-    transparent 12px
-  );
+  background-color: #d7dee8;
   color: var(--wb-text);
   display: flex;
   align-items: center;
@@ -45,7 +37,11 @@ button:focus-visible {
 }
 
 #app {
+  position: relative;
+  isolation: isolate;
   width: 100%;
+  min-height: 100vh;
   display: flex;
+  align-items: center;
   justify-content: center;
 }
