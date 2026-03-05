@@ -10,6 +10,7 @@ import type {
   TaskStatus,
 } from '../api/types'
 import { leaveScenario } from '../scenarios/leave/leaveScenario'
+import type { LeaveHalf, LeaveSlots, LeaveType } from '../scenarios/leave/leaveScenario'
 import { uid } from '../utils/id'
 
 type Json = unknown
@@ -78,42 +79,165 @@ export function mockAiSuggestions(limit: number): AiSuggestion[] {
   return list.slice(0, Math.max(1, Math.min(limit, 10)))
 }
 
-function parseLeaveFromText(text: string) {
-  // 极简解析：用于 demo（不要当成真实规则）
-  const slots = leaveScenario.createDraft().slots
+const dayMs = 86400_000
+const slotLabelMap = Object.fromEntries(leaveScenario.slotFields.map((f) => [f.key, f.label]))
 
-  if (text.includes('年假')) slots.leaveType = 'annual'
-  if (text.includes('病假')) slots.leaveType = 'sick'
-  if (text.includes('事假')) slots.leaveType = 'personal'
+function ymd(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
-  if (text.includes('半天')) {
-    slots.startHalf = 'PM'
-    slots.endHalf = 'PM'
+function toLeaveType(raw: string): LeaveType | undefined {
+  const t = raw.trim().toLowerCase()
+  if (t === 'annual' || t.includes('年假')) return 'annual'
+  if (t === 'sick' || t.includes('病假')) return 'sick'
+  if (t === 'personal' || t.includes('事假')) return 'personal'
+  if (t === 'other' || t.includes('其他')) return 'other'
+  return undefined
+}
+
+function toHalf(raw: string): LeaveHalf | undefined {
+  const t = raw.trim().toUpperCase()
+  if (t === 'AM' || raw.includes('上午')) return 'AM'
+  if (t === 'PM' || raw.includes('下午')) return 'PM'
+  if (t === 'FULL' || raw.includes('全天')) return 'FULL'
+  return undefined
+}
+
+function parseDateToken(raw: string, base: Date) {
+  const token = raw.trim()
+  if (token.includes('今天')) return ymd(base)
+  if (token.includes('明天')) return ymd(new Date(base.getTime() + dayMs))
+
+  const ymdMatch = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(token)
+  if (ymdMatch) {
+    const yyyy = Number(ymdMatch[1])
+    const mm = String(Number(ymdMatch[2])).padStart(2, '0')
+    const dd = String(Number(ymdMatch[3])).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
   }
 
-  // 默认用今天/明天填充，保证能快速演示进入确认页
-  const today = new Date()
-  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  const tomorrow = new Date(today.getTime() + 86400_000)
-
-  if (text.includes('明天')) {
-    slots.startDate = ymd(tomorrow)
-    slots.endDate = ymd(tomorrow)
-  } else {
-    slots.startDate = ymd(today)
-    slots.endDate = ymd(today)
+  const dayMatch = /(\d{1,2})\s*[号日]/.exec(token)
+  if (dayMatch) {
+    const day = Number(dayMatch[1])
+    if (day >= 1 && day <= 31) {
+      const d = new Date(base)
+      if (token.includes('下个月')) d.setMonth(d.getMonth() + 1)
+      d.setDate(day)
+      return ymd(d)
+    }
   }
 
+  return null
+}
+
+function readLabeledUpdate(text: string, label: string) {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const m = new RegExp(`${escaped}\\s*改为\\s*[“\"'「]?([^；。\\n」”\"']+)`).exec(text)
+  return m?.[1]?.trim()
+}
+
+function parseLeaveFromText(text: string, baseSlots?: LeaveSlots) {
+  const slots: LeaveSlots = {
+    ...(baseSlots ?? leaveScenario.createDraft().slots),
+  }
+  const changedLabels = new Set<string>()
+  const now = new Date()
+
+  const setSlot = <K extends keyof LeaveSlots>(
+    key: K,
+    value: LeaveSlots[K] | undefined,
+    label: string,
+  ) => {
+    if (value === undefined || value === null || value === '') return
+    if (slots[key] !== value) {
+      slots[key] = value
+      changedLabels.add(label)
+    }
+  }
+
+  // 精准解析：处理“开始日期改为…/假别改为…”类文本
+  const leaveTypeVal = readLabeledUpdate(text, '假别')
+  const startDateVal = readLabeledUpdate(text, '开始日期')
+  const endDateVal = readLabeledUpdate(text, '结束日期')
+  const startHalfVal = readLabeledUpdate(text, '开始时段')
+  const endHalfVal = readLabeledUpdate(text, '结束时段')
+  const reasonVal = readLabeledUpdate(text, '原因')
+
+  setSlot('leaveType', leaveTypeVal ? toLeaveType(leaveTypeVal) : undefined, '假别')
+  setSlot('startDate', startDateVal ? parseDateToken(startDateVal, now) ?? undefined : undefined, '开始日期')
+  setSlot('endDate', endDateVal ? parseDateToken(endDateVal, now) ?? undefined : undefined, '结束日期')
+  setSlot('startHalf', startHalfVal ? toHalf(startHalfVal) : undefined, '开始时段')
+  setSlot('endHalf', endHalfVal ? toHalf(endHalfVal) : undefined, '结束时段')
+  setSlot('reason', reasonVal, '原因')
+
+  // 自然语言解析：处理“改成4号下午半天”等文本
+  if (text.includes('年假')) setSlot('leaveType', 'annual', '假别')
+  if (text.includes('病假')) setSlot('leaveType', 'sick', '假别')
+  if (text.includes('事假')) setSlot('leaveType', 'personal', '假别')
+
+  const dateToken =
+    /(\d{4}-\d{1,2}-\d{1,2}|\d{1,2}\s*[号日]|今天|明天)/.exec(text)?.[1] ?? null
+  const parsedDate = dateToken ? parseDateToken(dateToken, now) : null
+  if (parsedDate) {
+    setSlot('startDate', parsedDate, '开始日期')
+    setSlot('endDate', parsedDate, '结束日期')
+  }
+
+  if (text.includes('全天')) {
+    setSlot('startHalf', 'FULL', '开始时段')
+    setSlot('endHalf', 'FULL', '结束时段')
+  } else if (text.includes('上午')) {
+    setSlot('startHalf', 'AM', '开始时段')
+    setSlot('endHalf', 'AM', '结束时段')
+  } else if (text.includes('下午')) {
+    setSlot('startHalf', 'PM', '开始时段')
+    setSlot('endHalf', 'PM', '结束时段')
+  } else if (text.includes('半天')) {
+    const half = slots.startHalf && slots.startHalf !== 'FULL' ? slots.startHalf : 'PM'
+    setSlot('startHalf', half, '开始时段')
+    setSlot('endHalf', half, '结束时段')
+  }
+
+  const reasonMatch =
+    /(?:原因|理由)\s*(?:是|为|:|：)?\s*([^，。；\n]+)/.exec(text) ??
+    /因为\s*([^，。；\n]+)/.exec(text)
+  if (reasonMatch?.[1]) {
+    setSlot('reason', reasonMatch[1].trim(), '原因')
+  }
+
+  // demo 默认兜底，让卡片始终可展示
+  if (!slots.startDate) slots.startDate = ymd(now)
+  if (!slots.endDate) slots.endDate = slots.startDate
   if (!slots.startHalf) slots.startHalf = 'FULL'
-  if (!slots.endHalf) slots.endHalf = 'FULL'
+  if (!slots.endHalf) slots.endHalf = slots.startHalf ?? 'FULL'
   if (!slots.leaveType) slots.leaveType = 'annual'
   if (!slots.reason) slots.reason = '个人原因'
 
-  return slots
+  return { slots, changedLabels: [...changedLabels] }
+}
+
+function isSuggestionIntent(text: string) {
+  return /建议|怎么填|还缺|补齐|下一步/.test(text)
+}
+
+function buildChatReply(text: string, changed: string[], missingLabels: string[]) {
+  if (isSuggestionIntent(text)) {
+    if (missingLabels.length) {
+      return `建议先补齐：${missingLabels.join('、')}。你可以直接说“改成4号下午半天，原因家里有事”。`
+    }
+    return '当前信息已齐全，可以直接执行；也可以继续说“改成4号下午半天”我会实时更新卡片。'
+  }
+
+  if (changed.length) {
+    return `已按你的描述更新：${changed.join('、')}。卡片信息已重新生成，你可以继续调整或直接执行。`
+  }
+
+  return '我已刷新草稿并同步卡片。你可以继续补充，例如“改成4号下午半天，原因个人事项”。'
 }
 
 export function createMockApi() {
   const tasks = new Map<string, Task>()
+  const sessionDrafts = new Map<string, ReturnType<typeof leaveScenario.createDraft>>()
 
   function listRecent(limit: number) {
     return [...tasks.values()].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1)).slice(0, limit)
@@ -134,11 +258,21 @@ export function createMockApi() {
   }
 
   async function handleChat(body: ChatRequest): Promise<ChatResponse> {
+    const sessionId = body.sessionId || 'default'
     const msg = body.message ?? ''
-    const slots = parseLeaveFromText(msg)
+    const prev = sessionDrafts.get(sessionId)
+    const { slots, changedLabels } = parseLeaveFromText(msg, prev?.slots as LeaveSlots | undefined)
     const d = leaveScenario.createDraft(slots)
+    if (prev) {
+      d.version = prev.version + 1
+      d.createdAt = prev.createdAt
+      d.updatedAt = nowIso()
+    }
+    sessionDrafts.set(sessionId, d)
+
+    const missingLabels = d.missingSlots.map((key) => slotLabelMap[key] ?? key)
     return {
-      replyText: '已为你解析出请假草稿（mock），请在右侧补全/确认后提交。',
+      replyText: buildChatReply(msg, changedLabels, missingLabels),
       draft: d,
       uiHints: { openTaskPanel: true },
     }
@@ -230,4 +364,3 @@ export function createMockApi() {
 
   return { route }
 }
-

@@ -1,39 +1,43 @@
 @import './styles/tokens.css';
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--wb-font-sans);
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
-  background-color: #d7dee8;
-  color: var(--wb-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  min-height: 100%;
 }
 
-html {
-  overflow: hidden;
+body {
+  min-height: 100vh;
+  color: var(--wb-text);
+  font-family: var(--wb-font-sans);
+  background:
+    radial-gradient(circle at 8% 6%, rgba(125, 211, 252, 0.3), transparent 34%),
+    radial-gradient(circle at 92% 88%, rgba(251, 191, 36, 0.2), transparent 30%),
+    linear-gradient(180deg, #f3f7fc 0%, #eaf1f9 100%);
 }
 
 button {
   font-family: inherit;
   cursor: pointer;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--wb-primary);
+  outline-offset: 2px;
 }
 
 #app {
@@ -44,4 +48,12 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 980px) {
+  #app {
+    padding: 0;
+  }
 }

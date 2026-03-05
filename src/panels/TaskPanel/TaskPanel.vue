@@ -266,7 +266,7 @@ function onBackdrop(e: Event) {
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid var(--wb-border);
-  background: linear-gradient(to right, var(--wb-surface-2), #eef2ff);
+  background: linear-gradient(to right, var(--wb-surface-2), var(--wb-primary-weak));
 }
 
 .title {
@@ -577,7 +577,7 @@ select.control {
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #5658dc;
+  background: var(--wb-primary-hover);
 }
 
 .btn:disabled {

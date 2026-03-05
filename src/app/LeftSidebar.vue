@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useWorkbenchStore } from '../stores/useWorkbenchStore'
+import { useTasksStore } from '../stores/useTasksStore'
 
 const route = useRoute()
 const router = useRouter()
 const wb = useWorkbenchStore()
+const tasks = useTasksStore()
 
 const menuItems = [
   {
@@ -41,10 +43,17 @@ const menuItems = [
 const activeRouteName = computed(() => String(route.name ?? ''))
 const layoutButtonLabel = computed(() => (wb.layoutEditing ? '完成布局编辑' : '编辑首页布局'))
 const layoutButtonShortLabel = computed(() => (wb.layoutEditing ? '完成' : '布局'))
+const taskBadgeCount = computed(() => tasks.recent.length)
 
 function openPage(routeName: string) {
   void router.push({ name: routeName })
 }
+
+onMounted(() => {
+  if (!tasks.recent.length && !tasks.loading) {
+    void tasks.fetchRecent(20)
+  }
+})
 </script>
 
 <template>
@@ -70,6 +79,13 @@ function openPage(routeName: string) {
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
         </svg>
+        <span
+          v-if="item.id === 'tasks' && taskBadgeCount > 0"
+          class="task-badge"
+          :title="`最近任务：${taskBadgeCount}`"
+        >
+          {{ taskBadgeCount > 9 ? '9+' : taskBadgeCount }}
+        </span>
         <div v-if="activeRouteName === item.routeName" class="indicator" />
         <span class="item-text">{{ item.shortLabel }}</span>
       </button>
@@ -138,7 +154,6 @@ function openPage(routeName: string) {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
   width: 100%;
   align-items: center;
 }
@@ -184,6 +199,26 @@ function openPage(routeName: string) {
   letter-spacing: 0.01em;
 }
 
+.task-badge {
+  position: absolute;
+  right: -5px;
+  top: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: #fff;
+  border: 1px solid #fff;
+  box-shadow: var(--wb-shadow-sm);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .indicator {
   position: absolute;
   left: -16px;
@@ -198,7 +233,7 @@ function openPage(routeName: string) {
 .bottom-actions {
   width: 100%;
   flex-shrink: 0;
-  margin-top: 8px;
+  margin-top: auto;
   padding-top: 10px;
   display: flex;
   justify-content: center;

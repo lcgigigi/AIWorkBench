@@ -36,7 +36,7 @@ export const routes: RouteRecordRaw[] = [
         component: RecentTaskDetailsPage,
         meta: {
           title: '最近任务详情',
-          subtitle: '查看任务状态、摘要和处理进度。',
+          subtitle: '统一查看任务记录与进行中的 AI 流程。',
           showSearch: true,
         },
       },

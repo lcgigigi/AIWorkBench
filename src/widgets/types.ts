@@ -13,6 +13,7 @@ export interface WidgetDefinition {
   layout?: WidgetLayoutHint
   closable?: boolean
   collapsible?: boolean
+  priority?: 'normal' | 'key'
 }
 
 export interface WidgetState {
@@ -21,4 +22,3 @@ export interface WidgetState {
   collapsed: boolean
   hidden: boolean
 }
-

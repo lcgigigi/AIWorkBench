@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useTasksStore } from '../../stores/useTasksStore'
 import { useTaskPanelStore } from '../../panels/TaskPanel/useTaskPanelStore'
 import { useWorkbenchStore } from '../../stores/useWorkbenchStore'
-import BaseButton from '../../components/base/BaseButton.vue'
 import { getTaskStatusText } from '../../utils/taskStatus'
+import { registerWidgetRefreshAction } from '../headerActions'
 
 const tasks = useTasksStore()
 const panel = useTaskPanelStore()
@@ -18,19 +18,20 @@ async function openTask(taskId: string) {
 }
 
 onMounted(() => {
+  registerWidgetRefreshAction('recent_tasks', {
+    run: () => tasks.fetchRecent(10),
+    isLoading: () => tasks.loading,
+  })
   void tasks.fetchRecent(10)
+})
+
+onBeforeUnmount(() => {
+  registerWidgetRefreshAction('recent_tasks', null)
 })
 </script>
 
 <template>
   <div class="wrap">
-    <div class="row">
-      <div class="meta">{{ tasks.loading ? '加载中…' : '🕘 最近任务' }}</div>
-      <BaseButton size="sm" variant="ghost" :disabled="tasks.loading" @click="tasks.fetchRecent(10)">
-        刷新
-      </BaseButton>
-    </div>
-
     <div v-if="tasks.error" class="error">{{ tasks.error }}</div>
 
     <div v-else-if="!items.length" class="empty">还没有任务记录。</div>
@@ -51,28 +52,9 @@ onMounted(() => {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   height: 100%;
   min-height: 0;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.meta {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--wb-accent-mint-text);
-  background: var(--wb-accent-mint);
-  min-height: var(--wb-chip-height);
-  padding: 0 10px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
 }
 
 .error {
@@ -89,28 +71,31 @@ onMounted(() => {
 .list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 10px 8px;
   border: 1px solid transparent;
-  background: var(--wb-surface-2);
+  background: transparent;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px -10px rgba(15, 23, 42, 0.32);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
   text-align: left;
 }
 
 .item:hover {
-  background: var(--wb-surface);
-  border-color: var(--wb-border);
-  box-shadow: var(--wb-shadow-card);
-  transform: translateX(2px);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.09), rgba(99, 102, 241, 0.03));
+  border-color: #dce2f8;
+  box-shadow:
+    0 10px 16px -12px rgba(79, 70, 229, 0.36),
+    0 6px 14px -12px rgba(15, 23, 42, 0.28);
 }
 
 .left {
@@ -125,12 +110,14 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .sub {
   margin-top: 4px;
   font-size: 12px;
   color: var(--wb-text-muted);
+  transition: color 0.2s ease;
 }
 
 .status {
@@ -176,5 +163,13 @@ onMounted(() => {
   background: var(--wb-status-submitted-bg);
   color: var(--wb-status-submitted-text);
   border-color: transparent;
+}
+
+.item:hover .title {
+  color: #2f3a8f;
+}
+
+.item:hover .sub {
+  color: #5b657a;
 }
 </style>

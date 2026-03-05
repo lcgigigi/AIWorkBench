@@ -9,15 +9,16 @@ import ComingSoonWidget from './ComingSoonWidget/ComingSoonWidget.vue'
 export const widgetRegistry: Record<WidgetId, WidgetDefinition> = {
   input: {
     id: 'input',
-    title: '输入',
+    title: '智能任务入口',
     component: InputWidget,
     layout: { spanCols: 3 },
+    priority: 'key',
     collapsible: true,
     closable: false,
   },
   hot_news: {
     id: 'hot_news',
-    title: '热点新闻',
+    title: '资讯速览',
     component: HotNewsWidget,
     layout: { spanCols: 3 },
     collapsible: true,
@@ -25,7 +26,7 @@ export const widgetRegistry: Record<WidgetId, WidgetDefinition> = {
   },
   common_actions: {
     id: 'common_actions',
-    title: '常用动作',
+    title: 'AI 快捷建议',
     component: CommonActionsWidget,
     layout: { spanCols: 2 },
     collapsible: true,
@@ -33,7 +34,7 @@ export const widgetRegistry: Record<WidgetId, WidgetDefinition> = {
   },
   recent_tasks: {
     id: 'recent_tasks',
-    title: '最近任务',
+    title: '任务进度追踪',
     component: RecentTasksWidget,
     layout: { spanCols: 2 },
     collapsible: true,
@@ -41,7 +42,7 @@ export const widgetRegistry: Record<WidgetId, WidgetDefinition> = {
   },
   coming_soon: {
     id: 'coming_soon',
-    title: '敬请期待',
+    title: '能力孵化区',
     component: ComingSoonWidget,
     layout: { spanCols: 2 },
     collapsible: true,

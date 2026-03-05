@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { api } from '../../api'
 import type { AiSuggestion } from '../../api/types'
-import { useChatStore } from '../../stores/useChatStore'
-import BaseButton from '../../components/base/BaseButton.vue'
+import { useExecutionFlowsStore } from '../../stores/useExecutionFlowsStore'
+import { registerWidgetRefreshAction } from '../headerActions'
 
-const chat = useChatStore()
+const router = useRouter()
+const flows = useExecutionFlowsStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const items = ref<AiSuggestion[]>([])
@@ -24,21 +26,27 @@ async function refresh() {
 
 async function runSuggestion(s: AiSuggestion) {
   if (!s.actionPayload) return
-  await chat.sendMessage(s.actionPayload)
+  const flowId = await flows.startFlow(s.actionPayload)
+  if (flowId) {
+    void router.push({ name: 'recentTaskDetails', query: { flow: flowId } })
+  }
 }
 
 onMounted(() => {
+  registerWidgetRefreshAction('common_actions', {
+    run: refresh,
+    isLoading: () => loading.value,
+  })
   void refresh()
+})
+
+onBeforeUnmount(() => {
+  registerWidgetRefreshAction('common_actions', null)
 })
 </script>
 
 <template>
   <div class="wrap">
-    <div class="row">
-      <div class="meta">{{ loading ? '加载中…' : '✨ AI 猜你想做' }}</div>
-      <BaseButton size="sm" variant="ghost" :disabled="loading" @click="refresh">刷新</BaseButton>
-    </div>
-
     <div v-if="error" class="error">{{ error }}</div>
 
     <div v-else class="list">
@@ -54,28 +62,9 @@ onMounted(() => {
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   height: 100%;
   min-height: 0;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.meta {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--wb-accent-purple-text);
-  background: var(--wb-accent-purple);
-  min-height: var(--wb-chip-height);
-  padding: 0 10px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
 }
 
 .error {
@@ -84,26 +73,30 @@ onMounted(() => {
 }
 
 .list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .card {
+  position: relative;
+  width: 100%;
   text-align: left;
   border: 1px solid transparent;
-  background: var(--wb-surface-2);
-  border-radius: 12px;
-  padding: 10px;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 8px;
+  box-shadow: 0 5px 12px -10px rgba(15, 23, 42, 0.32);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .card:hover {
-  background: var(--wb-surface);
-  border-color: var(--wb-border);
-  box-shadow: var(--wb-shadow-card);
-  transform: translateX(2px);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.09), rgba(99, 102, 241, 0.03));
+  border-color: #dce2f8;
+  box-shadow:
+    0 10px 16px -12px rgba(79, 70, 229, 0.36),
+    0 6px 14px -12px rgba(15, 23, 42, 0.28);
 }
 
 .t {
@@ -111,11 +104,21 @@ onMounted(() => {
   font-weight: 600;
   line-height: 1.4;
   color: var(--wb-text);
+  transition: color 0.2s ease;
 }
 
 .a {
   margin-top: 6px;
   font-size: 12px;
   color: var(--wb-text-muted);
+  transition: color 0.2s ease;
+}
+
+.card:hover .t {
+  color: #2f3a8f;
+}
+
+.card:hover .a {
+  color: #5b657a;
 }
 </style>

@@ -1,35 +1,37 @@
 :root {
-  /* Light Theme Palette */
-  --wb-bg: #f2f4f8;
+  --wb-bg: #eef3f8;
   --wb-surface: #ffffff;
-  --wb-surface-2: #f8f9fc;
-  --wb-text: #1f2937;
-  --wb-text-muted: #6b7280;
-  --wb-border: #e5e7eb;
+  --wb-surface-2: #f5f8fc;
+  --wb-surface-3: #edf3fa;
+  --wb-text: #172433;
+  --wb-text-muted: #5d6b7c;
+  --wb-border: #dbe3ef;
 
-  --wb-primary: #6366f1; /* Soft Indigo */
-  --wb-primary-weak: #e0e7ff;
-  --wb-primary-text: #4338ca;
+  --wb-primary: #2563eb;
+  --wb-primary-hover: #1d4ed8;
+  --wb-primary-weak: #dbeafe;
+  --wb-primary-text: #1e40af;
 
   --wb-accent-mint: #d1fae5;
-  --wb-accent-mint-text: #059669;
+  --wb-accent-mint-text: #047857;
   --wb-accent-peach: #ffedd5;
-  --wb-accent-peach-text: #ea580c;
-  --wb-accent-pink: #fce7f3;
-  --wb-accent-pink-text: #db2777;
-  --wb-accent-purple: #f3e8ff;
-  --wb-accent-purple-text: #9333ea;
+  --wb-accent-peach-text: #c2410c;
+  --wb-accent-pink: #ffe4ef;
+  --wb-accent-pink-text: #be185d;
+  --wb-accent-sky: #e0f2fe;
+  --wb-accent-sky-text: #0369a1;
   --wb-accent-blue: #dbeafe;
-  --wb-accent-blue-text: #2563eb;
+  --wb-accent-blue-text: #1d4ed8;
 
-  --wb-danger: #ef4444;
+  --wb-danger: #dc2626;
   --wb-danger-weak: #fee2e2;
-  --wb-warn: #f59e0b;
+  --wb-warn: #d97706;
+  --wb-warn-weak: #ffedd5;
 
   --wb-radius-sm: 12px;
   --wb-radius-md: 18px;
   --wb-radius-lg: 24px;
-  --wb-radius-xl: 32px;
+  --wb-radius-xl: 30px;
 
   --wb-space-1: 4px;
   --wb-space-2: 8px;
@@ -43,23 +45,27 @@
   --wb-control-height-md: 38px;
   --wb-chip-height: 24px;
 
-  --wb-status-draft-bg: #eef2ff;
-  --wb-status-draft-text: #4f46e5;
-  --wb-status-ready-bg: #f3e8ff;
-  --wb-status-ready-text: #7e22ce;
+  --wb-status-draft-bg: #e6f0ff;
+  --wb-status-draft-text: #1d4ed8;
+  --wb-status-ready-bg: #e0f2fe;
+  --wb-status-ready-text: #0369a1;
   --wb-status-submitted-bg: #dbeafe;
-  --wb-status-submitted-text: #1d4ed8;
+  --wb-status-submitted-text: #1e40af;
   --wb-status-progress-bg: #ffedd5;
-  --wb-status-progress-text: #c2410c;
+  --wb-status-progress-text: #b45309;
   --wb-status-done-bg: #d1fae5;
   --wb-status-done-text: #047857;
   --wb-status-failed-bg: #fee2e2;
   --wb-status-failed-text: #b91c1c;
 
-  --wb-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --wb-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --wb-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-  --wb-shadow-panel: -4px 0 20px rgba(0, 0, 0, 0.05);
+  --wb-chat-user-bg: #e8f1ff;
+  --wb-chat-assistant-bg: #f8fbff;
+  --wb-highlight-border: #c7d8f8;
 
-  --wb-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --wb-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --wb-shadow-card: 0 6px 18px -12px rgba(15, 23, 42, 0.2), 0 2px 6px rgba(15, 23, 42, 0.06);
+  --wb-shadow-lg: 0 16px 36px -18px rgba(15, 23, 42, 0.28), 0 8px 16px -10px rgba(15, 23, 42, 0.12);
+  --wb-shadow-panel: -6px 0 20px rgba(15, 23, 42, 0.12);
+
+  --wb-font-sans: 'Avenir Next', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }

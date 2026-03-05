@@ -5,7 +5,6 @@ import { useStorage } from '@vueuse/core'
 import { api } from '../api'
 import type { AiDraft, ChatResponse } from '../api/types'
 import { uid } from '../utils/id'
-import { useWorkbenchStore } from './useWorkbenchStore'
 import { useTaskPanelStore } from '../panels/TaskPanel/useTaskPanelStore'
 
 export type ChatRole = 'user' | 'assistant'
@@ -25,9 +24,9 @@ export const useChatStore = defineStore('chat', () => {
   const lastResponse = ref<ChatResponse | null>(null)
   const currentDraft = ref<AiDraft | null>(null)
 
-  async function sendMessage(message: string) {
+  async function sendMessage(message: string): Promise<ChatResponse | null> {
     const trimmed = message.trim()
-    if (!trimmed) return
+    if (!trimmed) return null
 
     error.value = null
     loading.value = true
@@ -45,13 +44,13 @@ export const useChatStore = defineStore('chat', () => {
 
       if (res.draft) {
         currentDraft.value = res.draft
-        const wb = useWorkbenchStore()
         const panel = useTaskPanelStore()
         panel.setDraft(res.draft)
-        if (res.uiHints?.openTaskPanel !== false) wb.openTaskPanel()
       }
+      return res
     } catch (e) {
       error.value = e instanceof Error ? e.message : '请求失败'
+      return null
     } finally {
       loading.value = false
     }
@@ -59,4 +58,3 @@ export const useChatStore = defineStore('chat', () => {
 
   return { sessionId, messages, loading, error, lastResponse, currentDraft, sendMessage }
 })
-
