@@ -60,7 +60,7 @@ async function send() {
   resizeTextarea()
   const flowId = await flows.startFlow(msg)
   if (flowId) {
-    void router.push({ name: 'recentTaskDetails', query: { flow: flowId } })
+    void router.push({ name: 'dashboardNew', query: { panel: 'tasks', flow: flowId } })
   }
 }
 

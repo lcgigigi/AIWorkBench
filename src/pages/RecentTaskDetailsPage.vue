@@ -19,8 +19,6 @@ const {
   refresh,
   openFlow,
   selectTask,
-  openInPanel,
-  openFlowTaskInPanel,
   getTaskStatusText,
   chatItems,
   messagesRef,
@@ -50,6 +48,8 @@ const {
   taskSummaryPrimary,
   taskSummaryLong,
 } = useRecentTaskDetailsPage()
+
+void messagesRef
 </script>
 
 <template>
@@ -104,14 +104,6 @@ const {
               <div class="title">{{ selectedFlow.title }}</div>
               <span class="item-status flow-chip" :class="flowStatusClass">{{ flowStatusLabel }}</span>
             </div>
-            <BaseButton
-              size="sm"
-              variant="ghost"
-              :disabled="!selectedFlow.task"
-              @click="openFlowTaskInPanel"
-            >
-              在任务面板打开
-            </BaseButton>
           </div>
 
           <section class="flow-chat-stage">
@@ -263,7 +255,6 @@ const {
         <template v-else-if="selectedTask">
           <div class="head">
             <div class="title">{{ selectedTask.summary.title }}</div>
-            <BaseButton size="sm" variant="primary" @click="openInPanel">在任务面板打开</BaseButton>
           </div>
 
           <div class="detail-grid">

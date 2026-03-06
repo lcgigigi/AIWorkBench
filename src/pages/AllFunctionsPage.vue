@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useWorkbenchStore } from '../stores/useWorkbenchStore'
-import { useTaskPanelStore } from '../panels/TaskPanel/useTaskPanelStore'
+import { useRouter } from 'vue-router'
+
+import { useExecutionFlowsStore } from '../stores/useExecutionFlowsStore'
 import BaseButton from '../components/base/BaseButton.vue'
 
 interface FunctionItem {
@@ -8,22 +9,31 @@ interface FunctionItem {
   title: string
   desc: string
   status: 'available' | 'planned'
+  prompt?: string
 }
 
-const wb = useWorkbenchStore()
-const panel = useTaskPanelStore()
+const router = useRouter()
+const flows = useExecutionFlowsStore()
 
 const functionItems: FunctionItem[] = [
-  { id: 'apply-leave', title: '请假申请', desc: '发起请假并提交审批。', status: 'available' },
+  {
+    id: 'apply-leave',
+    title: '请假申请',
+    desc: '通过 AI 对话整理假别、日期、时段与原因，生成可执行流程。',
+    status: 'available',
+    prompt: '我想请假，明天下午半天，原因家里有事',
+  },
   { id: 'make-up-leave', title: '补假申请', desc: '补提历史缺失请假记录。', status: 'planned' },
   { id: 'cancel-leave', title: '销假申请', desc: '提前返岗后提交销假。', status: 'planned' },
   { id: 'apply-overtime', title: '申请加班', desc: '填写加班时段与事由。', status: 'planned' },
   { id: 'apply-timeoff', title: '申请调休', desc: '使用可用调休时长。', status: 'planned' },
 ]
 
-function openLeaveFlow() {
-  panel.createMockDraftFromScenario('leave')
-  wb.openTaskPanel()
+async function openFunction(item: FunctionItem) {
+  if (!item.prompt) return
+  const flowId = await flows.startFlow(item.prompt)
+  if (!flowId) return
+  void router.replace({ name: 'dashboardNew', query: { panel: 'tasks', flow: flowId } })
 }
 </script>
 
@@ -31,7 +41,7 @@ function openLeaveFlow() {
   <section class="page">
     <div class="tips">
       <div class="tips-title">流程中心</div>
-      <div class="tips-desc">你可以从这里统一进入各类业务流程，当前已接入请假示例流程。</div>
+      <div class="tips-desc">当前优先接入请假流程，其余能力保留样式与入口占位，后续继续扩展。</div>
     </div>
 
     <div class="grid">
@@ -45,10 +55,10 @@ function openLeaveFlow() {
         <p class="desc">{{ item.desc }}</p>
         <div class="actions">
           <BaseButton
-            v-if="item.id === 'apply-leave'"
+            v-if="item.status === 'available'"
             variant="primary"
             size="sm"
-            @click="openLeaveFlow"
+            @click="openFunction(item)"
           >
             立即发起
           </BaseButton>
@@ -70,11 +80,9 @@ function openLeaveFlow() {
 }
 
 .tips {
-  border-radius: var(--wb-radius-lg);
-  background: var(--wb-surface);
-  border: 1px solid var(--wb-border);
-  box-shadow: var(--wb-shadow-sm);
   padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.66);
 }
 
 .tips-title {
@@ -96,14 +104,12 @@ function openLeaveFlow() {
 }
 
 .card {
-  border-radius: var(--wb-radius-lg);
-  background: var(--wb-surface);
-  border: 1px solid var(--wb-border);
-  box-shadow: var(--wb-shadow-sm);
   padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .head {
@@ -120,10 +126,13 @@ function openLeaveFlow() {
 }
 
 .badge {
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .badge-available {
@@ -140,12 +149,12 @@ function openLeaveFlow() {
   margin: 0;
   min-height: 40px;
   font-size: 13px;
-  color: var(--wb-text-muted);
   line-height: 1.5;
+  color: var(--wb-text-muted);
 }
 
 .actions {
-  margin-top: 6px;
+  margin-top: auto;
 }
 
 @media (max-width: 900px) {

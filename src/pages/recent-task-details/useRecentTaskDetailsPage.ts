@@ -2,8 +2,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '../../stores/useTasksStore'
 import { getTaskStatusText } from '../../utils/taskStatus'
-import { useTaskPanelStore } from '../../panels/TaskPanel/useTaskPanelStore'
-import { useWorkbenchStore } from '../../stores/useWorkbenchStore'
 import { useExecutionFlowsStore } from '../../stores/useExecutionFlowsStore'
 import { getScenario } from '../../scenarios'
 import type { SlotFieldType, SlotOption } from '../../scenarios/types'
@@ -40,8 +38,6 @@ type ChatItem =
 
 export function useRecentTaskDetailsPage() {
   const tasks = useTasksStore()
-  const panel = useTaskPanelStore()
-  const wb = useWorkbenchStore()
   const route = useRoute()
   const router = useRouter()
   const flowStore = useExecutionFlowsStore()
@@ -60,6 +56,10 @@ export function useRecentTaskDetailsPage() {
   
   const routeFlowId = computed(() =>
     typeof route.query.flow === 'string' ? route.query.flow : null,
+  )
+
+  const routeTaskId = computed(() =>
+    typeof route.query.task === 'string' ? route.query.task : null,
   )
   
   const flowList = computed(() =>
@@ -104,11 +104,23 @@ export function useRecentTaskDetailsPage() {
       if (!flowId) return
       const exists = flowList.value.some((flow) => flow.flowId === flowId)
       if (!exists) {
-        void router.replace({ name: 'recentTaskDetails' })
+        void router.replace({ name: 'dashboardNew', query: { panel: 'tasks' } })
         return
       }
       selectedKind.value = 'flow'
       flowStore.openFlow(flowId)
+    },
+    { immediate: true },
+  )
+
+  watch(
+    routeTaskId,
+    (taskId) => {
+      if (!taskId) return
+      if (tasks.recent.some((task) => task.taskId === taskId)) {
+        selectedKind.value = 'task'
+        selectedTaskId.value = taskId
+      }
     },
     { immediate: true },
   )
@@ -388,22 +400,6 @@ export function useRecentTaskDetailsPage() {
     await tasks.fetchRecent(20)
   }
   
-  async function openTaskInPanel(taskId: string) {
-    await panel.openTask(taskId)
-    wb.openTaskPanel()
-  }
-  
-  async function openInPanel() {
-    if (!selectedTask.value) return
-    await openTaskInPanel(selectedTask.value.taskId)
-  }
-  
-  async function openFlowTaskInPanel() {
-    const taskId = selectedFlow.value?.task?.taskId
-    if (!taskId) return
-    await openTaskInPanel(taskId)
-  }
-  
   function flowStatusText(status: string) {
     switch (status) {
       case 'collecting':
@@ -467,15 +463,21 @@ export function useRecentTaskDetailsPage() {
     selectedKind.value = 'flow'
     flowStore.openFlow(flowId)
     if (routeFlowId.value !== flowId) {
-      void router.replace({ name: 'recentTaskDetails', query: { flow: flowId } })
+      void router.replace({
+        name: 'dashboardNew',
+        query: { panel: 'tasks', flow: flowId },
+      })
     }
   }
-  
+
   function selectTask(taskId: string) {
     selectedKind.value = 'task'
     selectedTaskId.value = taskId
-    if (routeFlowId.value) {
-      void router.replace({ name: 'recentTaskDetails' })
+    if (routeTaskId.value !== taskId || routeFlowId.value) {
+      void router.replace({
+        name: 'dashboardNew',
+        query: { panel: 'tasks', task: taskId },
+      })
     }
   }
   
@@ -583,8 +585,6 @@ export function useRecentTaskDetailsPage() {
     refresh,
     openFlow,
     selectTask,
-    openInPanel,
-    openFlowTaskInPanel,
     getTaskStatusText,
     chatItems,
     messagesRef,

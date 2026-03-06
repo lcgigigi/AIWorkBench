@@ -28,7 +28,7 @@ async function runSuggestion(s: AiSuggestion) {
   if (!s.actionPayload) return
   const flowId = await flows.startFlow(s.actionPayload)
   if (flowId) {
-    void router.push({ name: 'recentTaskDetails', query: { flow: flowId } })
+    void router.push({ name: 'dashboardNew', query: { panel: 'tasks', flow: flowId } })
   }
 }
 

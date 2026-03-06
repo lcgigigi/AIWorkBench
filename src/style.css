@@ -45,15 +45,6 @@ select:focus-visible {
   isolation: isolate;
   width: 100%;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
+  padding: 0;
   box-sizing: border-box;
-}
-
-@media (max-width: 980px) {
-  #app {
-    padding: 0;
-  }
 }
